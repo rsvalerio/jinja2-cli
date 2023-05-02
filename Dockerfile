@@ -1,9 +1,9 @@
 FROM python:3-alpine
 
-ADD . .
+COPY . .
 
 RUN \
   apk update && \
   apk upgrade --no-cache && \
-  pip install --upgrade pip && \
+  pip install --no-cache-dir --upgrade pip && \
   pip install -e ./
