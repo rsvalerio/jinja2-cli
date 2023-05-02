@@ -21,7 +21,6 @@ jobs:
         uses: actions/checkout@v3
 
       - name: Build an image from Dockerfile
-        working-directory: vault-unsealer
         run: |
           docker build -t trivy-img:${{ github.sha }} .
 
