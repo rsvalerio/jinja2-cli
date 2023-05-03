@@ -3,8 +3,7 @@ name: docker
 on:
   push:
     branches:
-      - 'main'
-      - 'add_docker_image'
+      - '*'
 
 jobs:
   docker-check-dockerfile:
