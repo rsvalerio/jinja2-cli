@@ -1,38 +1,11 @@
-name: docker-build
+name: docker-release
 
 on:
   push:
-    branches:
-      - '*'
+    tags:
+      - "*.*.*"
 
 jobs:
-  docker-check-dockerfile:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v3
-      - uses: hadolint/hadolint-action@v3.1.0
-        with:
-          ignore: DL3013
-
-  docker-trivy-security-scan:
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v3
-
-      - name: Build an image from Dockerfile
-        run: |
-          docker build -t trivy-img:${{ github.sha }} .
-
-      - name: Run Trivy vulnerability scanner
-        uses: aquasecurity/trivy-action@master
-        with:
-          image-ref: "trivy-img:${{ github.sha }}"
-          format: 'table'
-          exit-code: '1'
-          ignore-unfixed: true
-          vuln-type: 'os,library'
-          severity: 'CRITICAL'
 
   docker-build:
     runs-on: ubuntu-latest
@@ -40,9 +13,6 @@ jobs:
       contents: read
       packages: write
       id-token: write
-    needs: 
-      - docker-check-dockerfile
-      - docker-trivy-security-scan
     steps:
       - name: Checkout
         uses: actions/checkout@v3
@@ -53,6 +23,7 @@ jobs:
         with:
           images: | 
             ghcr.io/${{ github.repository_owner }}/${{ github.event.repository.name }}
+            ${{ github.repository_owner }}/${{ github.event.repository.name }}
           tags: |
             type=schedule
             type=ref,event=branch
@@ -74,6 +45,12 @@ jobs:
           registry: ghcr.io
           username: ${{ github.repository_owner }}
           password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Login to Docker Hub
+        uses: docker/login-action@v2
+        with:
+          username: ${{ secrets.DOCKERHUB_USER }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
 
       - name: Build and push
         uses: docker/build-push-action@v4
