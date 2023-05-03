@@ -1,8 +1,9 @@
-name: docker
+name: docker-build
 
 on:
-  pull_request:
-    branches: ["main"]
+  push:
+    branches:
+      - '*'
 
 jobs:
   docker-check-dockerfile:
